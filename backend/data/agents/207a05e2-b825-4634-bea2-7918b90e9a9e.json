@@ -1,0 +1,33 @@
+{
+  "id": "207a05e2-b825-4634-bea2-7918b90e9a9e",
+  "name": "Agent",
+  "description": "does something",
+  "created_at": "2026-03-10T06:23:46.747532",
+  "is_deployed": false,
+  "llm": {
+    "provider": "Gemini",
+    "model": "gemini-2.5-flash",
+    "temperature": 0.7,
+    "max_tokens": 1000,
+    "api_key": ""
+  },
+  "prompt": {
+    "system_prompt": "You are a helpful AI assistant.",
+    "few_shot_examples": [],
+    "input_variables": []
+  },
+  "rag": {
+    "enabled": true,
+    "vector_db": "Pinecone",
+    "api_key": "",
+    "index_name": "n8n",
+    "embedding_model": "gemini-embedding-001",
+    "top_k": 5,
+    "similarity_threshold": 0.8
+  },
+  "output": {
+    "format": "Plain text",
+    "max_length": 2000
+  },
+  "slug": "agent"
+}

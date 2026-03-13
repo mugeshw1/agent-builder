@@ -1,0 +1,35 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+
+import os
+
+# Load environment variables
+load_dotenv()
+
+from routes.agents import router as agents_router
+from routes.chat import router as chat_router
+from routes.vector_db import router as vector_router
+
+app = FastAPI(title="Agent Configuration Studio", version="1.0.0")
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(agents_router)
+app.include_router(chat_router)
+app.include_router(vector_router)
+
+@app.get("/")
+def root():
+    return {"message": "Agent Configuration Studio API is running"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

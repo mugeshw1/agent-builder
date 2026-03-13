@@ -1,0 +1,37 @@
+{
+  "id": "d3809593-fa42-4ab8-9f19-c69f395ad4f7",
+  "name": "Testing Agent",
+  "slug": "testing-agent",
+  "description": "this agent is for testing",
+  "created_at": "2026-03-11T13:34:24.885327",
+  "is_deployed": true,
+  "llm": {
+    "provider": "OpenAI",
+    "model": "gpt-4o",
+    "temperature": 0.7,
+    "max_tokens": 1000,
+    "api_key": ""
+  },
+  "prompt": {
+    "system_prompt": "You are a helpful AI assistant.",
+    "few_shot_examples": [],
+    "input_variables": []
+  },
+  "rag": {
+    "enabled": true,
+    "vector_db": "Qdrant",
+    "api_key": "",
+    "url": "",
+    "index_name": "my-collections",
+    "embedding_model": "text-embedding-3-small",
+    "top_k": 3,
+    "similarity_threshold": 0.0,
+    "search_type": "hybrid",
+    "dense_vector_name": "text-dense",
+    "sparse_vector_name": "text-sparse"
+  },
+  "output": {
+    "format": "Plain text",
+    "max_length": 2000
+  }
+}

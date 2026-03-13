@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+langchain
+langchain-core
+langchain-community
+langchain-openai
+langchain-anthropic
+langchain-google-genai
+langchain-pinecone
+pinecone-client
+pypdf
+python-multipart
+qdrant-client
+langchain-qdrant
+fastembed

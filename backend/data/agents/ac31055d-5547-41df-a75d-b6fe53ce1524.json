@@ -1,0 +1,33 @@
+{
+  "id": "ac31055d-5547-41df-a75d-b6fe53ce1524",
+  "name": "Basic Chatbot",
+  "slug": "basic-chatbot",
+  "description": "General purpose chatbot",
+  "created_at": "2026-03-09T13:38:37.570681",
+  "is_deployed": true,
+  "llm": {
+    "provider": "OpenAI",
+    "model": "gpt-4.1",
+    "temperature": 0.8,
+    "max_tokens": 1000,
+    "api_key": ""
+  },
+  "prompt": {
+    "system_prompt": "You are a helpful AI assistant.",
+    "few_shot_examples": [],
+    "input_variables": []
+  },
+  "rag": {
+    "enabled": false,
+    "vector_db": "Pinecone",
+    "api_key": "",
+    "index_name": "",
+    "embedding_model": "text-embedding-3-small",
+    "top_k": 3,
+    "similarity_threshold": 0.7
+  },
+  "output": {
+    "format": "Plain text",
+    "max_length": 2000
+  }
+}

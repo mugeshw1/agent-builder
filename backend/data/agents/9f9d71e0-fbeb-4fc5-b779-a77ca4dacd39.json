@@ -1,0 +1,37 @@
+{
+  "id": "9f9d71e0-fbeb-4fc5-b779-a77ca4dacd39",
+  "name": "a",
+  "slug": "a",
+  "description": "",
+  "created_at": "2026-03-12T13:55:28.487478",
+  "is_deployed": false,
+  "llm": {
+    "provider": "OpenAI",
+    "model": "gpt-4o",
+    "temperature": 0.7,
+    "max_tokens": 1000,
+    "api_key": ""
+  },
+  "prompt": {
+    "system_prompt": "You are a helpful AI assistant.",
+    "few_shot_examples": [],
+    "input_variables": []
+  },
+  "rag": {
+    "enabled": true,
+    "vector_db": "Weaviate",
+    "api_key": "N0ZjSk9XRWp1dENxRmVueV9nN0ZyWWJTcmp3Y1RMV0xMeHY3U2RXOFBYSU1MQjAzRXNiQ3IvK2N4ZENnPV92MjAw",
+    "url": "2vgemqcvt6uqp7evhbbv1w.c0.asia-southeast1.gcp.weaviate.cloud",
+    "index_name": "My_collection",
+    "embedding_model": "text-embedding-3-small",
+    "top_k": 3,
+    "similarity_threshold": 0.7,
+    "search_type": "dense",
+    "dense_vector_name": "text-dense",
+    "sparse_vector_name": "text-sparse"
+  },
+  "output": {
+    "format": "Plain text",
+    "max_length": 2000
+  }
+}
