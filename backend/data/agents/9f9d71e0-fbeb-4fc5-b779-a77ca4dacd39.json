@@ -20,8 +20,8 @@
   "rag": {
     "enabled": true,
     "vector_db": "Weaviate",
-    "api_key": "N0ZjSk9XRWp1dENxRmVueV9nN0ZyWWJTcmp3Y1RMV0xMeHY3U2RXOFBYSU1MQjAzRXNiQ3IvK2N4ZENnPV92MjAw",
-    "url": "2vgemqcvt6uqp7evhbbv1w.c0.asia-southeast1.gcp.weaviate.cloud",
+    "api_key": "",
+    "url": "",
     "index_name": "My_collection",
     "embedding_model": "text-embedding-3-small",
     "top_k": 3,
