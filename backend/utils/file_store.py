@@ -4,14 +4,26 @@ from typing import List, Optional
 from models.agent import AgentConfig
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "agents")
+CONFIG_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "config")
 
-# Ensure directory exists
+# Ensure directories exist
 os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(CONFIG_DIR, exist_ok=True)
 
 def _get_file_path(agent_id: str) -> str:
     return os.path.join(DATA_DIR, f"{agent_id}.json")
 
+def _get_sa_path(agent_id: str) -> str:
+    return os.path.join(CONFIG_DIR, f"service-account-{agent_id}.json")
+
 def save_agent(agent: AgentConfig) -> AgentConfig:
+    # 1. Save GCP Service Account to dedicated file if present
+    if agent.rag.gcp_service_account_json:
+        sa_path = _get_sa_path(agent.id)
+        with open(sa_path, "w", encoding="utf-8") as f:
+            f.write(agent.rag.gcp_service_account_json)
+
+    # 2. Save Agent to JSON
     file_path = _get_file_path(agent.id)
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(agent.model_dump(), f, indent=2)
@@ -47,6 +59,12 @@ def list_agents() -> List[AgentConfig]:
     return agents
 
 def delete_agent(agent_id: str) -> bool:
+    # 1. Delete Service Account file
+    sa_path = _get_sa_path(agent_id)
+    if os.path.exists(sa_path):
+        os.remove(sa_path)
+        
+    # 2. Delete Agent file
     file_path = _get_file_path(agent_id)
     if os.path.exists(file_path):
         os.remove(file_path)

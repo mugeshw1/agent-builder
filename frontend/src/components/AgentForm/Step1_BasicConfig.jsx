@@ -148,7 +148,7 @@ export default function Step1_BasicConfig() {
             <Label className={errors["llm.api_key"] ? "text-destructive" : ""}>API Key (Optional / Env fallback)</Label>
             <Input
               type="password"
-              placeholder="sk-... (Leave empty to use OPENAI_API_KEY from .env)"
+              placeholder="Enter API Key"
               className={errors["llm.api_key"] ? "border-destructive focus-visible:ring-destructive" : ""}
               value={agentConfig.llm.api_key}
               onChange={(e) => handlellmChange("api_key", e.target.value)}

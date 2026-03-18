@@ -38,16 +38,13 @@ export default function Step2_PromptConfig() {
         <h3 className="text-lg font-semibold border-b pb-2">System Prompt</h3>
         <div className="space-y-2">
           <Label className={errors["prompt.system_prompt"] ? "text-destructive" : ""}>System Instructions</Label>
-          <Textarea 
+          <Textarea
             className={`min-h-[150px] ${errors["prompt.system_prompt"] ? "border-destructive focus-visible:ring-destructive" : ""}`}
             placeholder="You are a helpful assistant..."
             value={promptConfig.system_prompt}
             onChange={(e) => handleChange("system_prompt", e.target.value)}
           />
           {errors["prompt.system_prompt"] && <p className="text-[10px] text-destructive font-semibold uppercase">{errors["prompt.system_prompt"]}</p>}
-          <p className="text-xs text-muted-foreground">
-            You can use dynamic placeholders if needed, e.g., {'{user_name}'}
-          </p>
         </div>
       </div>
 
@@ -58,7 +55,7 @@ export default function Step2_PromptConfig() {
             <Plus className="w-4 h-4 mr-2" /> Add Example
           </Button>
         </div>
-        
+
         {promptConfig.few_shot_examples.length === 0 && (
           <div className="text-center text-muted-foreground py-4 text-sm">
             No examples added. Click "Add Example" to train the model's tone.
@@ -71,7 +68,7 @@ export default function Step2_PromptConfig() {
               <div className="flex-1 space-y-4">
                 <div className="space-y-2">
                   <Label>User Message</Label>
-                  <Textarea 
+                  <Textarea
                     value={ex.user}
                     onChange={(e) => updateFewShot(idx, "user", e.target.value)}
                     placeholder="User question here..."
@@ -80,7 +77,7 @@ export default function Step2_PromptConfig() {
                 </div>
                 <div className="space-y-2">
                   <Label>Assistant Response</Label>
-                  <Textarea 
+                  <Textarea
                     value={ex.assistant}
                     onChange={(e) => updateFewShot(idx, "assistant", e.target.value)}
                     placeholder="Ideal assistant answer here..."
@@ -88,9 +85,9 @@ export default function Step2_PromptConfig() {
                   />
                 </div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => removeFewShot(idx)}
               >

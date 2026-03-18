@@ -6,8 +6,10 @@ import { Label } from "../ui/label";
 import { Select } from "../ui/select";
 import { Upload, ChevronRight, Check, Loader2, AlertCircle, FileText, Trash2 } from "lucide-react";
 import axios from "axios";
+import { useAgentStore } from "../../store";
 
 export default function RagManager({ isOpen, onClose, initialIndex = null, rag }) {
+  const { agentConfig } = useAgentStore();
   const embeddingModel = rag?.embedding_model;
   const [step, setStep] = useState(initialIndex ? 2 : 1);
   const [isIndexing, setIsIndexing] = useState(false);
@@ -91,6 +93,16 @@ export default function RagManager({ isOpen, onClose, initialIndex = null, rag }
     if (rag.url) formData.append("url", rag.url);
     formData.append("chunk_size", chunkSize);
     formData.append("chunk_overlap", overlap);
+    
+    // Add additional provider fields
+    if (rag.gcp_service_account_json) formData.append("gcp_service_account_json", rag.gcp_service_account_json);
+    if (rag.gcp_project_id) formData.append("gcp_project_id", rag.gcp_project_id);
+    if (rag.gcp_location) formData.append("gcp_location", rag.gcp_location);
+    if (rag.gcp_gcs_path) formData.append("gcp_gcs_path", rag.gcp_gcs_path);
+    if (rag.aws_access_key) formData.append("aws_access_key", rag.aws_access_key);
+    if (rag.aws_secret_key) formData.append("aws_secret_key", rag.aws_secret_key);
+    if (rag.aws_region) formData.append("aws_region", rag.aws_region);
+    if (agentConfig.id) formData.append("agent_id", agentConfig.id);
 
     try {
       const resp = await axios.post("http://localhost:8000/vector-db/upload", formData);

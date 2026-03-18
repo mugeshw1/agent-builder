@@ -135,6 +135,7 @@ async def upload_file_to_vector_db(
     file_path: str, 
     index_name: str, 
     embedding_model: str, 
+    agent_id: Optional[str] = None,
     vector_db: str = "Pinecone",
     url: str = None,
     chunk_size: int = 1000, 
@@ -144,7 +145,15 @@ async def upload_file_to_vector_db(
     google_key: Optional[str] = None,
     search_type: str = "dense",
     dense_vector_name: str = "text-dense",
-    sparse_vector_name: str = "text-sparse"
+    sparse_vector_name: str = "text-sparse",
+    # Additional fields
+    gcp_service_account_json: Optional[str] = None,
+    gcp_project_id: Optional[str] = None,
+    gcp_location: Optional[str] = None,
+    gcp_gcs_path: Optional[str] = None,
+    aws_access_key: Optional[str] = None,
+    aws_secret_key: Optional[str] = None,
+    aws_region: Optional[str] = None
 ):
     # 1. Load Document
     loader = PyPDFLoader(file_path)
@@ -154,7 +163,6 @@ async def upload_file_to_vector_db(
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     splits = text_splitter.split_documents(docs)
     
-    # 3. Setup Embeddings
     # 3. Setup Embeddings
     from models.agent import EMBEDDING_MODELS_BY_PROVIDER
     
@@ -238,6 +246,65 @@ async def upload_file_to_vector_db(
             vectorstore.add_documents(splits)
         finally:
             client.close()
+    elif vector_db.lower() == "azure":
+        from langchain_community.vectorstores import AzureSearch
+        
+        vectorstore = AzureSearch(
+            azure_search_endpoint=url or os.getenv("AZURE_SEARCH_ENDPOINT"),
+            azure_search_key=api_key or os.getenv("AZURE_SEARCH_KEY"),
+            index_name=index_name,
+            embedding_function=embeddings.embed_query,
+        )
+        vectorstore.add_documents(documents=splits)
+
+    elif vector_db.lower() == "aws":
+        from langchain_community.vectorstores import OpenSearchVectorSearch
+        from requests_aws4auth import AWS4Auth
+        import boto3
+        from opensearchpy import RequestsHttpConnection
+
+        auth = AWS4Auth(
+            aws_access_key or os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_key or os.getenv("AWS_SECRET_ACCESS_KEY"),
+            aws_region or os.getenv("AWS_REGION", "us-east-1"),
+            'es'
+        )
+        
+        vectorstore = OpenSearchVectorSearch(
+            opensearch_url=url,
+            index_name=index_name,
+            embedding_function=embeddings,
+            http_auth=auth,
+            use_ssl=True,
+            verify_certs=True,
+            connection_class=RequestsHttpConnection
+        )
+        vectorstore.add_documents(splits)
+
+    elif vector_db.lower() == "vertex":
+        from langchain_google_vertexai import VertexAIVectorSearch
+        import json
+        
+        # Check for dedicated service account file first
+        sa_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "config", f"service-account-{agent_id}.json")
+        
+        if os.path.exists(sa_file_path):
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = sa_file_path
+        elif gcp_service_account_json:
+            # Fallback to temp file if not yet archived but string exists
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+                f.write(gcp_service_account_json)
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = f.name
+        
+        vectorstore = VertexAIVectorSearch(
+            project_id=gcp_project_id or os.getenv("GCP_PROJECT_ID"),
+            location_id=gcp_location or os.getenv("GCP_LOCATION", "us-central1"),
+            index_id=index_name, # User calls it index name, but Vertex needs ID
+            embedding=embeddings,
+            staging_bucket=gcp_gcs_path or os.getenv("GCP_GCS_PATH")
+        )
+        vectorstore.add_documents(splits)
+
     else:
         raise ValueError(f"Unsupported vector database: {vector_db}")
     

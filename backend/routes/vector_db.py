@@ -31,6 +31,9 @@ def get_indexes(
             indexes = list_qdrant_collections(url, api_key)
         elif vector_db.lower() == "weaviate":
             indexes = list_weaviate_classes(url, api_key)
+        elif vector_db.lower() in ["aws", "azure", "vertex"]:
+            # For these, we might not have a simple way to list yet, or they don't support it in this context
+            indexes = []
         else:
             raise HTTPException(status_code=400, detail=f"Unsupported vector database: {vector_db}")
         return {"indexes": indexes}
@@ -99,7 +102,15 @@ async def upload_file(
     google_key: Optional[str] = Form(None),
     search_type: str = Form("dense"),
     dense_vector_name: str = Form("text-dense"),
-    sparse_vector_name: str = Form("text-sparse")
+    sparse_vector_name: str = Form("text-sparse"),
+    gcp_service_account_json: Optional[str] = Form(None),
+    gcp_project_id: Optional[str] = Form(None),
+    gcp_location: Optional[str] = Form(None),
+    gcp_gcs_path: Optional[str] = Form(None),
+    aws_access_key: Optional[str] = Form(None),
+    aws_secret_key: Optional[str] = Form(None),
+    aws_region: Optional[str] = Form(None),
+    agent_id: Optional[str] = Form(None)
 ):
     # Save file temporarily
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
@@ -111,6 +122,7 @@ async def upload_file(
             tmp_path, 
             index_name, 
             embedding_model, 
+            agent_id,
             vector_db,
             url,
             chunk_size, 
@@ -120,7 +132,14 @@ async def upload_file(
             google_key,
             search_type,
             dense_vector_name,
-            sparse_vector_name
+            sparse_vector_name,
+            gcp_service_account_json,
+            gcp_project_id,
+            gcp_location,
+            gcp_gcs_path,
+            aws_access_key,
+            aws_secret_key,
+            aws_region
         )
         return {"message": "File uploaded and indexed successfully", "chunks": num_splits}
     except Exception as e:

@@ -29,9 +29,6 @@ export default function Step4_OutputConfig() {
               <option value="JSON">JSON</option>
               <option value="Markdown">Markdown</option>
             </Select>
-            <p className="text-xs text-muted-foreground pt-1">
-              Instructions will be appended to the prompt to enforce this format.
-            </p>
           </div>
 
           <div className="space-y-2">

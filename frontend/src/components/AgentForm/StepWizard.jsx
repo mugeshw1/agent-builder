@@ -17,7 +17,7 @@ const steps = [
 
 export default function StepWizard({ onSuccess }) {
   const [currentStep, setCurrentStep] = useState(1);
-  const { agentConfig, isSlugValid, errors, setErrors } = useAgentStore();
+  const { agentConfig, isSlugValid, errors, setErrors, isExistingAgent, setIsExistingAgent } = useAgentStore();
   const [loading, setLoading] = useState(false);
 
   const getStepErrors = (stepId) => {
@@ -71,12 +71,13 @@ export default function StepWizard({ onSuccess }) {
         return;
       }
 
-      if (agentConfig.id) {
+      if (isExistingAgent) {
         // Update existing agent
         await axios.put(`http://localhost:8000/agents/${agentConfig.id}`, agentConfig);
       } else {
         // Create new agent
         await axios.post("http://localhost:8000/agents/", agentConfig);
+        setIsExistingAgent(true);
       }
       onSuccess?.();
     } catch (error) {
@@ -87,7 +88,7 @@ export default function StepWizard({ onSuccess }) {
     }
   };
 
-  const isEditing = !!agentConfig.id;
+  const isEditing = isExistingAgent;
 
   const CurrentStepComponent = steps[currentStep - 1].component;
 

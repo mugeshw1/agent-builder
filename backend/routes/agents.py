@@ -57,8 +57,8 @@ async def validate_config(agent: AgentConfig):
     # 2. RAG Validation
     if agent.rag.enabled:
         from services.vector_service import (
-            list_pinecone_indexes, 
-            list_qdrant_collections, 
+            list_pinecone_indexes,
+            list_qdrant_collections,
             list_weaviate_classes
         )
         
@@ -74,7 +74,7 @@ async def validate_config(agent: AgentConfig):
         try:
             if db == "pinecone":
                 if not rag_api_key:
-                    errors["rag.api_key"] = "Pinecone API Key not found (config or Env)"
+                    errors["rag.api_key"] = "Pinecone API Key not found"
                 else:
                     indexes = list_pinecone_indexes(rag_api_key)
                     if agent.rag.index_name and agent.rag.index_name not in indexes:
@@ -82,16 +82,20 @@ async def validate_config(agent: AgentConfig):
             
             elif db == "qdrant":
                 if not rag_url:
-                    errors["rag.url"] = "Qdrant URL not found (config or Env)"
-                else:
+                    errors["rag.url"] = "Qdrant URL not found"
+                if not rag_api_key:
+                    errors["rag.api_key"] = "Qdrant API Key not found"
+                if rag_url and rag_api_key:
                     collections = list_qdrant_collections(rag_url, rag_api_key)
                     if agent.rag.index_name and agent.rag.index_name not in collections:
                         errors["rag.index_name"] = f"Collection '{agent.rag.index_name}' not found"
             
             elif db == "weaviate":
                 if not rag_url:
-                    errors["rag.url"] = "Weaviate URL not found (config or Env)"
-                else:
+                    errors["rag.url"] = "Weaviate URL not found"
+                if not rag_api_key:
+                    errors["rag.api_key"] = "Weaviate API Key not found"
+                if rag_url and rag_api_key:
                     classes = list_weaviate_classes(rag_url, rag_api_key)
                     if agent.rag.index_name and agent.rag.index_name not in classes:
                         errors["rag.index_name"] = f"Class '{agent.rag.index_name}' not found"

@@ -33,16 +33,23 @@ class PromptConfig(BaseModel):
 
 class RAGConfig(BaseModel):
     enabled: bool = False
-    vector_db: str = "Pinecone"  # Pinecone, Qdrant
+    vector_db: str = "Pinecone"
     api_key: Optional[str] = None
-    url: Optional[str] = None # For Qdrant
-    index_name: Optional[str] = None # Collection name for Qdrant
+    url: Optional[str] = None
+    index_name: Optional[str] = None
     embedding_model: Optional[str] = "text-embedding-3-small"
     top_k: int = 3
     similarity_threshold: float = 0.7
-    search_type: str = "dense" # dense, hybrid
+    search_type: str = "dense"
     dense_vector_name: str = "text-dense"
     sparse_vector_name: str = "text-sparse"
+    gcp_service_account_json: Optional[str] = None
+    gcp_project_id: Optional[str] = None
+    gcp_location: Optional[str] = None
+    gcp_gcs_path: Optional[str] = None
+    aws_access_key: Optional[str] = None
+    aws_secret_key: Optional[str] = None
+    aws_region: Optional[str] = None
 
 class OutputConfig(BaseModel):
     format: str = "Plain text"

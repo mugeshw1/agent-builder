@@ -1,11 +1,15 @@
 import { create } from "zustand";
+import { v4 as uuidv4 } from "uuid";
 
 export const useAgentStore = create((set) => ({
   isSlugValid: true,
   setIsSlugValid: (isValid) => set({ isSlugValid: isValid }),
   errors: {},
   setErrors: (errors) => set({ errors }),
+  isExistingAgent: false,
+  setIsExistingAgent: (isExisting) => set({ isExistingAgent: isExisting }),
   agentConfig: {
+    id: uuidv4(),
     name: "",
     slug: "",
     description: "",
@@ -38,6 +42,7 @@ export const useAgentStore = create((set) => ({
       format: "Plain text",
       max_length: 2000,
       streaming: false,
+      streaming: false,
     },
   },
   
@@ -53,7 +58,9 @@ export const useAgentStore = create((set) => ({
   })),
 
   resetConfig: () => set({
+    isExistingAgent: false,
     agentConfig: {
+      id: uuidv4(),
       name: "",
       slug: "",
       description: "",
@@ -87,5 +94,8 @@ export const useAgentStore = create((set) => ({
     }
   }),
 
-  setConfig: (config) => set({ agentConfig: config })
+  setConfig: (config) => set({ 
+    agentConfig: config,
+    isExistingAgent: true 
+  })
 }));

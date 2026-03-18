@@ -6,7 +6,7 @@ import { Select } from "../ui/select";
 import { Switch } from "../ui/switch";
 import { Slider } from "../ui/slider";
 import { Button } from "../ui/button";
-import { Plus, Settings2, RefreshCw, Loader2 } from "lucide-react";
+import { Plus, Settings2, RefreshCw, Loader2, Check, FileJson } from "lucide-react";
 import axios from "axios";
 import RagManager from "./RagManager";
 import { Modal } from "../ui/modal";
@@ -14,7 +14,7 @@ import { Modal } from "../ui/modal";
 export default function Step3_RAGConfig() {
   const { agentConfig, updateConfig, errors } = useAgentStore();
   const rag = agentConfig.rag;
-  
+
   const [indexes, setIndexes] = useState([]);
   const [loadingIndexes, setLoadingIndexes] = useState(false);
   const [showManager, setShowManager] = useState(false);
@@ -26,7 +26,7 @@ export default function Step3_RAGConfig() {
     setLoadingIndexes(true);
     try {
       const resp = await axios.get("http://localhost:8000/vector-db/indexes", {
-        params: { 
+        params: {
           api_key: rag.api_key,
           vector_db: rag.vector_db,
           url: rag.url
@@ -69,7 +69,7 @@ export default function Step3_RAGConfig() {
             Allow the agent to search your external knowledge base.
           </p>
         </div>
-        <Switch 
+        <Switch
           checked={rag.enabled}
           onCheckedChange={(checked) => handleChange("enabled", checked)}
         />
@@ -81,7 +81,7 @@ export default function Step3_RAGConfig() {
             <div className="space-y-2">
               <Label>Vector Database</Label>
               <div className="flex gap-2">
-                <Select 
+                <Select
                   value={rag.vector_db}
                   onChange={(e) => handleChange("vector_db", e.target.value)}
                   className="flex-1"
@@ -89,9 +89,12 @@ export default function Step3_RAGConfig() {
                   <option value="Pinecone">Pinecone</option>
                   <option value="Qdrant">Qdrant</option>
                   <option value="Weaviate">Weaviate</option>
+                  <option value="Azure">Azure AI Search</option>
+                  <option value="AWS">Amazon OpenSearch</option>
+                  <option value="Vertex">Vertex AI Vector Search</option>
                 </Select>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowDbConfig(true)}
                   className="shrink-0 gap-2"
                 >
@@ -105,7 +108,7 @@ export default function Step3_RAGConfig() {
               <div className="flex items-center justify-between">
                 <Label>Embedding Model</Label>
               </div>
-              <Select 
+              <Select
                 value={rag.embedding_model}
                 onChange={(e) => handleChange("embedding_model", e.target.value)}
               >
@@ -124,7 +127,7 @@ export default function Step3_RAGConfig() {
           <div className="space-y-8 p-6 border rounded-xl bg-card shadow-sm">
             <div className="space-y-4">
               <Label>Top-K Results: {rag.top_k}</Label>
-              <Slider 
+              <Slider
                 min={1} max={20} step={1}
                 value={[rag.top_k]}
                 onValueChange={([val]) => handleChange("top_k", val)}
@@ -134,7 +137,7 @@ export default function Step3_RAGConfig() {
 
             <div className="space-y-4">
               <Label>Similarity Threshold: {rag.similarity_threshold}</Label>
-              <Slider 
+              <Slider
                 min={0} max={1} step={0.05}
                 value={[rag.similarity_threshold]}
                 onValueChange={([val]) => handleChange("similarity_threshold", val)}
@@ -145,7 +148,7 @@ export default function Step3_RAGConfig() {
         </div>
       )}
 
-      <VectorDbSettingsModal 
+      <VectorDbSettingsModal
         isOpen={showDbConfig}
         onClose={() => setShowDbConfig(false)}
         rag={rag}
@@ -156,8 +159,8 @@ export default function Step3_RAGConfig() {
         openManageIndex={openManageIndex}
       />
 
-      <RagManager 
-        isOpen={showManager} 
+      <RagManager
+        isOpen={showManager}
         onClose={() => {
           setShowManager(false);
           fetchIndexes();
@@ -174,13 +177,13 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`${rag.vector_db} Configuration`}>
       <div className="space-y-5 py-2">
-        {rag.vector_db === "Pinecone" ? (
+        {rag.vector_db === "Pinecone" && (
           <>
             <div className="space-y-2">
               <Label className={errors["rag.api_key"] ? "text-destructive" : ""}>Pinecone API Key</Label>
-              <Input 
+              <Input
                 type="password"
-                placeholder="Paste key or leave empty for PINECONE_API_KEY"
+                placeholder="Enter Pinecone API Key"
                 className={errors["rag.api_key"] ? "border-destructive focus-visible:ring-destructive" : ""}
                 value={rag.api_key}
                 onChange={(e) => handleChange("api_key", e.target.value)}
@@ -190,8 +193,8 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Pinecone Index</Label>
-                <button 
-                  onClick={fetchIndexes} 
+                <button
+                  onClick={fetchIndexes}
                   className="text-[10px] flex items-center gap-1 hover:text-primary transition-colors text-muted-foreground font-bold"
                 >
                   {loadingIndexes ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <RefreshCw className="w-2.5 h-2.5" />}
@@ -199,7 +202,7 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
                 </button>
               </div>
               <div className="flex gap-2">
-                <Select 
+                <Select
                   value={rag.index_name}
                   onChange={(e) => handleChange("index_name", e.target.value)}
                   className={`flex-1 ${errors["rag.index_name"] ? "border-destructive" : ""}`}
@@ -219,12 +222,14 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
               </div>
             </div>
           </>
-        ) : rag.vector_db === "Qdrant" ? (
+        )}
+
+        {rag.vector_db === "Qdrant" && (
           <>
             <div className="space-y-2">
               <Label className={errors["rag.url"] ? "text-destructive" : ""}>Qdrant Cluster URL</Label>
-              <Input 
-                placeholder="URL or leave empty for QDRANT_URL"
+              <Input
+                placeholder="Enter Qdrant Cluster URL"
                 className={errors["rag.url"] ? "border-destructive focus-visible:ring-destructive" : ""}
                 value={rag.url}
                 onChange={(e) => handleChange("url", e.target.value)}
@@ -233,9 +238,9 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
             </div>
             <div className="space-y-2">
               <Label className={errors["rag.api_key"] ? "text-destructive" : ""}>Qdrant API Key</Label>
-              <Input 
+              <Input
                 type="password"
-                placeholder="Key or leave empty for QDRANT_API_KEY"
+                placeholder="Enter Qdrant API Key"
                 className={errors["rag.api_key"] ? "border-destructive focus-visible:ring-destructive" : ""}
                 value={rag.api_key}
                 onChange={(e) => handleChange("api_key", e.target.value)}
@@ -244,7 +249,7 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
             </div>
             <div className="space-y-2">
               <Label>Search Type</Label>
-              <Select 
+              <Select
                 value={rag.search_type || "dense"}
                 onChange={(e) => handleChange("search_type", e.target.value)}
               >
@@ -255,7 +260,7 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
 
             <div className="space-y-2">
               <Label>Dense Vector Name</Label>
-              <Input 
+              <Input
                 placeholder="e.g. text-dense"
                 value={rag.dense_vector_name}
                 onChange={(e) => handleChange("dense_vector_name", e.target.value)}
@@ -265,7 +270,7 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
             {rag.search_type === "hybrid" && (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
                 <Label>Sparse Vector Name</Label>
-                <Input 
+                <Input
                   placeholder="e.g. text-sparse"
                   value={rag.sparse_vector_name}
                   onChange={(e) => handleChange("sparse_vector_name", e.target.value)}
@@ -276,7 +281,7 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
             <div className="space-y-2">
               <Label className={errors["rag.index_name"] ? "text-destructive" : ""}>Collection Name</Label>
               <div className="flex gap-2">
-                <Input 
+                <Input
                   placeholder="e.g. documentation_collection"
                   value={rag.index_name}
                   onChange={(e) => handleChange("index_name", e.target.value)}
@@ -290,16 +295,15 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
               </div>
               {errors["rag.index_name"] && <p className="text-[10px] text-destructive font-semibold uppercase">{errors["rag.index_name"]}</p>}
             </div>
-            <p className="text-[11px] text-muted-foreground italic">
-              Note: Qdrant collections must be created manually or via Qdrant dashboard correctly for hybrid mode.
-            </p>
           </>
-        ) : (
+        )}
+
+        {rag.vector_db === "Weaviate" && (
           <>
             <div className="space-y-2">
               <Label className={errors["rag.url"] ? "text-destructive" : ""}>Weaviate Cluster URL</Label>
-              <Input 
-                placeholder="URL or leave empty for WEAVIATE_URL"
+              <Input
+                placeholder="Enter Weaviate Cluster URL"
                 className={errors["rag.url"] ? "border-destructive focus-visible:ring-destructive" : ""}
                 value={rag.url}
                 onChange={(e) => handleChange("url", e.target.value)}
@@ -308,9 +312,9 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
             </div>
             <div className="space-y-2">
               <Label className={errors["rag.api_key"] ? "text-destructive" : ""}>Weaviate Admin API Key</Label>
-              <Input 
+              <Input
                 type="password"
-                placeholder="Key or leave empty for WEAVIATE_API_KEY"
+                placeholder="Enter Weaviate Admin API Key"
                 className={errors["rag.api_key"] ? "border-destructive focus-visible:ring-destructive" : ""}
                 value={rag.api_key}
                 onChange={(e) => handleChange("api_key", e.target.value)}
@@ -320,7 +324,7 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
             <div className="space-y-2">
               <Label className={errors["rag.index_name"] ? "text-destructive" : ""}>Weaviate Collection (Class)</Label>
               <div className="flex gap-2">
-                <Input 
+                <Input
                   placeholder="e.g. MyCollection"
                   value={rag.index_name}
                   onChange={(e) => handleChange("index_name", e.target.value)}
@@ -333,6 +337,169 @@ function VectorDbSettingsModal({ isOpen, onClose, rag, handleChange, indexes, fe
                 )}
               </div>
               {errors["rag.index_name"] && <p className="text-[10px] text-destructive font-semibold uppercase">{errors["rag.index_name"]}</p>}
+            </div>
+          </>
+        )}
+
+        {rag.vector_db === "Azure" && (
+          <>
+            <div className="space-y-2">
+              <Label>Azure Endpoint URL</Label>
+              <Input
+                placeholder="https://your-service.search.windows.net"
+                value={rag.url}
+                onChange={(e) => handleChange("url", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Azure API Key</Label>
+              <Input
+                type="password"
+                placeholder="Admin Key"
+                value={rag.api_key}
+                onChange={(e) => handleChange("api_key", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Index Name</Label>
+              <Input
+                placeholder="e.g. my-index"
+                value={rag.index_name}
+                onChange={(e) => handleChange("index_name", e.target.value)}
+              />
+            </div>
+          </>
+        )}
+
+        {rag.vector_db === "AWS" && (
+          <>
+            <div className="space-y-2">
+              <Label>Domain Endpoint (URL)</Label>
+              <Input
+                placeholder="https://vpc-dom-..."
+                value={rag.url}
+                onChange={(e) => handleChange("url", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Access Key ID</Label>
+              <Input
+                placeholder="AKIA..."
+                value={rag.aws_access_key}
+                onChange={(e) => handleChange("aws_access_key", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Secret Access Key</Label>
+              <Input
+                type="password"
+                placeholder="Secret Key"
+                value={rag.aws_secret_key}
+                onChange={(e) => handleChange("aws_secret_key", e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Region</Label>
+                <Input
+                  placeholder="us-east-1"
+                  value={rag.aws_region}
+                  onChange={(e) => handleChange("aws_region", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Index Name</Label>
+                <Input
+                  placeholder="e.g. my-index"
+                  value={rag.index_name}
+                  onChange={(e) => handleChange("index_name", e.target.value)}
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        {rag.vector_db === "Vertex" && (
+          <>
+            <div className="space-y-2">
+              <Label>Service Account JSON File</Label>
+              {rag.gcp_service_account_json ? (
+                <div className="flex items-center justify-between p-3 border rounded-xl bg-green-50/50 border-green-200 animate-in fade-in zoom-in duration-200">
+                  <div className="flex items-center gap-2 text-green-700 text-sm font-medium">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                      <Check className="w-4 h-4" />
+                    </div>
+                    <span>Key loaded successfully</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleChange("gcp_service_account_json", "")}
+                    className="h-8 px-3 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-full"
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                <div className="group relative">
+                  <Input
+                    type="file"
+                    accept=".json"
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          handleChange("gcp_service_account_json", event.target.result);
+                        };
+                        reader.readAsText(file);
+                      }
+                    }}
+                  />
+                  <div className="border-2 border-dashed rounded-xl p-4 text-center group-hover:bg-muted/30 transition-all border-muted-foreground/20 group-hover:border-primary/50">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 text-primary">
+                      <FileJson className="w-5 h-5" />
+                    </div>
+                    <p className="text-sm font-medium">Click to upload .json key</p>
+                    <p className="text-[10px] text-muted-foreground">Service Account Key required for Vertex AI</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Project ID</Label>
+                <Input
+                  placeholder="my-gcp-project"
+                  value={rag.gcp_project_id}
+                  onChange={(e) => handleChange("gcp_project_id", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Location</Label>
+                <Input
+                  placeholder="us-central1"
+                  value={rag.gcp_location}
+                  onChange={(e) => handleChange("gcp_location", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Index ID (Name)</Label>
+              <Input
+                placeholder="e.g. 1234567890"
+                value={rag.index_name}
+                onChange={(e) => handleChange("index_name", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Vector Data GCS Path</Label>
+              <Input
+                placeholder="gs://my-bucket/path"
+                value={rag.gcp_gcs_path}
+                onChange={(e) => handleChange("gcp_gcs_path", e.target.value)}
+              />
             </div>
           </>
         )}
