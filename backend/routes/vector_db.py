@@ -7,12 +7,6 @@ from services.vector_service import (
     list_pinecone_indexes, 
     create_pinecone_index, 
     delete_pinecone_index,
-    list_qdrant_collections,
-    create_qdrant_collection,
-    delete_qdrant_collection,
-    list_weaviate_classes,
-    create_weaviate_class,
-    delete_weaviate_class,
     upload_file_to_vector_db
 )
 
@@ -27,12 +21,8 @@ def get_indexes(
     try:
         if vector_db.lower() == "pinecone":
             indexes = list_pinecone_indexes(api_key)
-        elif vector_db.lower() == "qdrant":
-            indexes = list_qdrant_collections(url, api_key)
-        elif vector_db.lower() == "weaviate":
-            indexes = list_weaviate_classes(url, api_key)
-        elif vector_db.lower() in ["aws", "azure", "vertex"]:
-            # For these, we might not have a simple way to list yet, or they don't support it in this context
+        elif vector_db.lower() in ["qdrant", "weaviate", "aws", "azure", "vertex"]:
+            # These providers use manual input in the UI, so we don't need to list them
             indexes = []
         else:
             raise HTTPException(status_code=400, detail=f"Unsupported vector database: {vector_db}")
@@ -55,13 +45,6 @@ def create_index(
     try:
         if vector_db.lower() == "pinecone":
             create_pinecone_index(name, dimension, api_key, metric)
-        elif vector_db.lower() == "qdrant":
-            create_qdrant_collection(
-                name, dimension, url, api_key, metric, 
-                search_type, dense_vector_name, sparse_vector_name
-            )
-        elif vector_db.lower() == "weaviate":
-            create_weaviate_class(name, url, api_key)
         else:
             raise HTTPException(status_code=400, detail=f"Unsupported vector database: {vector_db}")
         return {"message": f"Index/Collection {name} created successfully"}
@@ -78,10 +61,6 @@ def delete_index(
     try:
         if vector_db.lower() == "pinecone":
             delete_pinecone_index(name, api_key)
-        elif vector_db.lower() == "qdrant":
-            delete_qdrant_collection(name, url, api_key)
-        elif vector_db.lower() == "weaviate":
-            delete_weaviate_class(name, url, api_key)
         else:
             raise HTTPException(status_code=400, detail=f"Unsupported vector database: {vector_db}")
         return {"message": f"Index/Collection {name} deleted successfully"}

@@ -43,47 +43,6 @@ def list_qdrant_collections(url: Optional[str] = None, api_key: Optional[str] = 
     collections = client.get_collections()
     return [c.name for c in collections.collections]
 
-def create_qdrant_collection(
-    name: str, 
-    dimension: int, 
-    url: Optional[str] = None, 
-    api_key: Optional[str] = None, 
-    metric: str = "Cosine",
-    search_type: str = "dense",
-    dense_vector_name: str = "text-dense",
-    sparse_vector_name: str = "text-sparse"
-):
-    from qdrant_client.http import models
-    client = get_qdrant_client(url, api_key)
-    
-    qdrant_metric = models.Distance.COSINE
-    if metric.lower() == "euclidean":
-        qdrant_metric = models.Distance.EUCLID
-    elif metric.lower() == "dotproduct":
-        qdrant_metric = models.Distance.DOT
-
-    vectors_config = {
-        dense_vector_name: models.VectorParams(size=dimension, distance=qdrant_metric)
-    }
-    
-    sparse_vectors_config = None
-    if search_type == "hybrid":
-        sparse_vectors_config = {
-            sparse_vector_name: models.SparseVectorParams()
-        }
-
-    client.create_collection(
-        collection_name=name,
-        vectors_config=vectors_config,
-        sparse_vectors_config=sparse_vectors_config
-    )
-    return True
-
-def delete_qdrant_collection(name: str, url: Optional[str] = None, api_key: Optional[str] = None):
-    client = get_qdrant_client(url, api_key)
-    client.delete_collection(collection_name=name)
-    return True
-
 # --- Weaviate specific logic ---
 def get_weaviate_client(url: Optional[str] = None, api_key: Optional[str] = None):
     import weaviate
@@ -110,27 +69,6 @@ def list_weaviate_classes(url: Optional[str] = None, api_key: Optional[str] = No
         return [name for name in collections]
     finally:
         client.close()
-
-def create_weaviate_class(name: str, url: Optional[str] = None, api_key: Optional[str] = None):
-    import weaviate.classes.config as wc
-    client = get_weaviate_client(url, api_key)
-    try:
-        client.collections.create(
-            name=name,
-            vectorizer_config=wc.Configure.Vectorizer.none(),
-        )
-        return True
-    finally:
-        client.close()
-
-def delete_weaviate_class(name: str, url: Optional[str] = None, api_key: Optional[str] = None):
-    client = get_weaviate_client(url, api_key)
-    try:
-        client.collections.delete(name)
-        return True
-    finally:
-        client.close()
-
 async def upload_file_to_vector_db(
     file_path: str, 
     index_name: str, 

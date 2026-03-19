@@ -23,6 +23,13 @@ export default function Step3_RAGConfig() {
 
   const fetchIndexes = async () => {
     if (!rag.enabled) return;
+
+    if (rag.vector_db !== "Pinecone") {
+      setIndexes([]);
+      setLoadingIndexes(false);
+      return;
+    }
+    
     setLoadingIndexes(true);
     try {
       const resp = await axios.get("http://localhost:8000/vector-db/indexes", {
