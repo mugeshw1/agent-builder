@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import API_BASE_URL from "../config";
 import ChatPanel from "../components/ChatPanel";
 import {
   Loader2, AlertCircle, Home, MessageSquare,
@@ -27,7 +28,7 @@ export default function PublicChat() {
     const fetchAgent = async () => {
       setLoading(true);
       try {
-        const resp = await axios.get(`http://localhost:8000/agents/${agentSlug}`);
+        const resp = await axios.get(`${API_BASE_URL}/agents/${agentSlug}`);
         const agentData = resp.data;
 
         if (!agentData.is_deployed) {
@@ -67,7 +68,7 @@ export default function PublicChat() {
     formData.append("chunk_overlap", 200);
 
     try {
-      const resp = await axios.post("http://localhost:8000/vector-db/upload", formData);
+      const resp = await axios.post(`${API_BASE_URL}/vector-db/upload`, formData);
       setUploadStatus({
         type: "success",
         message: `Indexed ${resp.data.chunks} chunks successfully.`

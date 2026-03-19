@@ -65,7 +65,7 @@ def build_agent(config: AgentConfig):
     
     if rag_enabled:
         if "{context}" not in system_prompt:
-            system_prompt += "\n\nContext information is below.\n---------------------\n{context}\n---------------------\nGiven the context, answer the user only based on the provided context. If the answer is not in the context, say that you don't know."
+            system_prompt += "\n\nContext information is below.\n---------------------\n{context}\n---------------------\nUse the above context to answer the user's question ONLY if the question is related to the context. If the user's message is a general greeting or casual conversation (e.g. 'hi', 'hello', 'how are you'), respond naturally without referencing the context. If the user asks a question and the answer is not in the context, say that you don't have that information in your knowledge base."
 
     messages = [("system", system_prompt)]
     for ex in config.prompt.few_shot_examples:
@@ -188,8 +188,6 @@ def build_agent(config: AgentConfig):
                     "score_threshold": threshold
                 }
             )
-        
-        print(f"DEBUG: Retriever setup - Type: {rag.search_type}, Threshold: {threshold}")
         
         question_answer_chain = create_stuff_documents_chain(llm, prompt)
         chain = create_retrieval_chain(retriever, question_answer_chain)

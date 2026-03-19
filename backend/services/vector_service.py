@@ -69,6 +69,7 @@ def list_weaviate_classes(url: Optional[str] = None, api_key: Optional[str] = No
         return [name for name in collections]
     finally:
         client.close()
+    
 async def upload_file_to_vector_db(
     file_path: str, 
     index_name: str, 

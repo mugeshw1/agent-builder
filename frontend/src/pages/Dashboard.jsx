@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import API_BASE_URL from "../config";
 import { Button } from "../components/ui/button";
 import AgentCard from "../components/AgentCard";
 import StepWizard from "../components/AgentForm/StepWizard";
@@ -19,7 +20,7 @@ export default function Dashboard() {
   const fetchAgents = async () => {
     setLoading(true);
     try {
-      const resp = await axios.get("http://localhost:8000/agents/");
+      const resp = await axios.get(`${API_BASE_URL}/agents/`);
       setAgents(resp.data);
     } catch (error) {
       console.error("Error fetching agents:", error);
@@ -35,7 +36,7 @@ export default function Dashboard() {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this agent?")) return;
     try {
-      await axios.delete(`http://localhost:8000/agents/${id}`);
+      await axios.delete(`${API_BASE_URL}/agents/${id}`);
       fetchAgents();
     } catch (error) {
       alert("Error deleting agent");

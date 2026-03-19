@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "../ui/button";
 import { Settings, Play, Trash2, Rocket, ExternalLink, Power } from "lucide-react";
 import axios from "axios";
+import API_BASE_URL from "../../config";
 
 export default function AgentCard({ agent, onEdit, onDelete, onTest, onRefresh }) {
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,7 @@ export default function AgentCard({ agent, onEdit, onDelete, onTest, onRefresh }
   const handleDeploy = async () => {
     setLoading(true);
     try {
-      await axios.post(`http://localhost:8000/agents/${agent.id}/deploy`);
+      await axios.post(`${API_BASE_URL}/agents/${agent.id}/deploy`);
       onRefresh();
     } catch (err) {
       alert("Deployment failed");
@@ -23,7 +24,7 @@ export default function AgentCard({ agent, onEdit, onDelete, onTest, onRefresh }
     if (!confirm("Deactivate this agent? It will no longer be accessible via the public link.")) return;
     setLoading(true);
     try {
-      await axios.post(`http://localhost:8000/agents/${agent.id}/deactivate`);
+      await axios.post(`${API_BASE_URL}/agents/${agent.id}/deactivate`);
       onRefresh();
     } catch (err) {
       alert("Deactivation failed");

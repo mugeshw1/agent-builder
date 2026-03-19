@@ -3,7 +3,6 @@ from typing import List, Optional
 from models.agent import AgentConfig
 from utils.file_store import save_agent, get_agent, list_agents, delete_agent, get_agent_by_slug
 from services.agent_cache import agent_cache
-import re
 import os
 
 router = APIRouter(prefix="/agents", tags=["Agents"])
@@ -109,9 +108,6 @@ async def validate_config(agent: AgentConfig):
                 errors["rag.index_name"] = f"RAG Error: {str(e)}"
 
     return {"valid": len(errors) == 0, "errors": errors}
-
-def generate_slug_logic(name: str) -> str:
-    return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
 
 @router.post("/", response_model=AgentConfig)
 def create_agent(agent: AgentConfig):

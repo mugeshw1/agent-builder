@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Any, Dict, Optional
+from typing import Optional
 import time
-from langchain_core.messages import HumanMessage, AIMessage
 
 from utils.file_store import get_agent
 from services.agent_builder import build_agent
@@ -30,12 +29,12 @@ async def chat_with_agent(id: str, request: ChatRequest):
     
     try:
         # 1. Try to get from Cache First
-        agent_bundle = agent_cache.get(id, agent_config.dict())
+        agent_bundle = agent_cache.get(id, agent_config.model_dump())
         
         # 2. If not in cache, Build and Store
         if not agent_bundle:
             agent_bundle = build_agent(agent_config)
-            agent_cache.set(id, agent_config.dict(), agent_bundle)
+            agent_cache.set(id, agent_config.model_dump(), agent_bundle)
 
     except Exception as e:
         import traceback
@@ -80,7 +79,7 @@ async def chat_with_agent(id: str, request: ChatRequest):
         history.add_ai_message(response_text)
 
         latency_ms = (time.time() - start_time) * 1000
-        print("retrieved chunks:", retrieved_chunks)
+
         return ChatResponse(
             response=response_text,
             latency_ms=latency_ms,

@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Send, X, Bot, User, Clock, Database, ChevronDown, ChevronUp } from "lucide-react";
 import axios from "axios";
+import API_BASE_URL from "../../config";
 
 export default function ChatPanel({ agent, onClose, isPublic = false }) {
   const [messages, setMessages] = useState([]);
@@ -31,7 +32,7 @@ export default function ChatPanel({ agent, onClose, isPublic = false }) {
     setLoading(true);
 
     try {
-      const resp = await axios.post(`http://localhost:8000/agents/${agent.id}/chat`, {
+      const resp = await axios.post(`${API_BASE_URL}/agents/${agent.id}/chat`, {
         message: input,
         session_id: sessionId,
       });

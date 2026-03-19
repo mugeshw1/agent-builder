@@ -5,6 +5,7 @@ import { Label } from "../ui/label";
 import { Select } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 import axios from "axios";
+import API_BASE_URL from "../../config";
 
 const modelsByProvider = {
   OpenAI: ["gpt-5.2", "gpt-5.2-pro", "gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-4o", "gpt-4o-mini", "o3", "o3-mini", "o4-mini", "gpt-4-turbo", "gpt-3.5-turbo"],
@@ -38,7 +39,7 @@ export default function Step1_BasicConfig() {
       if (!agentConfig.slug) return;
       setIsChecking(true);
       try {
-        const resp = await axios.get(`http://localhost:8000/agents/validate-slug/${agentConfig.slug}`, {
+        const resp = await axios.get(`${API_BASE_URL}/agents/validate-slug/${agentConfig.slug}`, {
           params: { exclude_id: agentConfig.id }
         });
         setIsSlugValid(resp.data.available);

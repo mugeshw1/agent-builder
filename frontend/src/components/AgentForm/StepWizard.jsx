@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { ChevronRight, ChevronLeft, Save, AlertCircle } from "lucide-react";
 import { useAgentStore } from "../../store";
 import axios from "axios";
+import API_BASE_URL from "../../config";
 
 const steps = [
   { id: 1, title: "Basic Config", component: Step1_BasicConfig },
@@ -63,7 +64,7 @@ export default function StepWizard({ onSuccess }) {
     setErrors({}); // Clear previous errors
     try {
       // 1. Validate with Backend first
-      const valResp = await axios.post("http://localhost:8000/agents/validate", agentConfig);
+      const valResp = await axios.post(`${API_BASE_URL}/agents/validate`, agentConfig);
       
       if (!valResp.data.valid) {
         setErrors(valResp.data.errors);
@@ -73,10 +74,10 @@ export default function StepWizard({ onSuccess }) {
 
       if (isExistingAgent) {
         // Update existing agent
-        await axios.put(`http://localhost:8000/agents/${agentConfig.id}`, agentConfig);
+        await axios.put(`${API_BASE_URL}/agents/${agentConfig.id}`, agentConfig);
       } else {
         // Create new agent
-        await axios.post("http://localhost:8000/agents/", agentConfig);
+        await axios.post(`${API_BASE_URL}/agents/`, agentConfig);
         setIsExistingAgent(true);
       }
       onSuccess?.();

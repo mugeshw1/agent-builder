@@ -6,6 +6,7 @@ import { Label } from "../ui/label";
 import { Select } from "../ui/select";
 import { Upload, ChevronRight, Check, Loader2, AlertCircle, FileText, Trash2 } from "lucide-react";
 import axios from "axios";
+import API_BASE_URL from "../../config";
 import { useAgentStore } from "../../store";
 
 export default function RagManager({ isOpen, onClose, initialIndex = null, rag }) {
@@ -63,7 +64,7 @@ export default function RagManager({ isOpen, onClose, initialIndex = null, rag }
     }
 
     try {
-      await axios.post("http://localhost:8000/vector-db/indexes", formData);
+      await axios.post(`${API_BASE_URL}/vector-db/indexes`, formData);
       setSuccess("Index created successfully!");
       setTimeout(() => {
         setStep(2);
@@ -105,7 +106,7 @@ export default function RagManager({ isOpen, onClose, initialIndex = null, rag }
     if (agentConfig.id) formData.append("agent_id", agentConfig.id);
 
     try {
-      const resp = await axios.post("http://localhost:8000/vector-db/upload", formData);
+      const resp = await axios.post(`${API_BASE_URL}/vector-db/upload`, formData);
       setSuccess(`Success! Indexed ${resp.data.chunks} chunks.`);
       setFile(null);
     } catch (err) {
@@ -119,7 +120,7 @@ export default function RagManager({ isOpen, onClose, initialIndex = null, rag }
     if (!window.confirm("Are you sure you want to delete this index?")) return;
     setIsDeleting(true);
     try {
-      await axios.delete(`http://localhost:8000/vector-db/indexes/${indexName}`, {
+      await axios.delete(`${API_BASE_URL}/vector-db/indexes/${indexName}`, {
         params: {
           vector_db: rag.vector_db,
           api_key: rag.api_key,

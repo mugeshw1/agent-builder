@@ -41,8 +41,6 @@ export const useAgentStore = create((set) => ({
     output: {
       format: "Plain text",
       max_length: 2000,
-      streaming: false,
-      streaming: false,
     },
   },
   
@@ -85,6 +83,9 @@ export const useAgentStore = create((set) => ({
         embedding_model: "text-embedding-3-small",
         top_k: 3,
         similarity_threshold: 0.7,
+        search_type: "dense",
+        dense_vector_name: "text-dense",
+        sparse_vector_name: "text-sparse",
       },
       output: {
         format: "Plain text",

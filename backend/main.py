@@ -14,9 +14,10 @@ from routes.vector_db import router as vector_router
 app = FastAPI(title="Agent Configuration Studio", version="1.0.0")
 
 # Enable CORS
+allowed_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this in production
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

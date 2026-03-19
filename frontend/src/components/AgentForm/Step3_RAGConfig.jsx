@@ -8,6 +8,7 @@ import { Slider } from "../ui/slider";
 import { Button } from "../ui/button";
 import { Plus, Settings2, RefreshCw, Loader2, Check, FileJson } from "lucide-react";
 import axios from "axios";
+import API_BASE_URL from "../../config";
 import RagManager from "./RagManager";
 import { Modal } from "../ui/modal";
 
@@ -32,7 +33,7 @@ export default function Step3_RAGConfig() {
     
     setLoadingIndexes(true);
     try {
-      const resp = await axios.get("http://localhost:8000/vector-db/indexes", {
+      const resp = await axios.get(`${API_BASE_URL}/vector-db/indexes`, {
         params: {
           api_key: rag.api_key,
           vector_db: rag.vector_db,
