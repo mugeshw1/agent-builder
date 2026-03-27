@@ -54,8 +54,8 @@ export default function Dashboard() {
   };
 
   const filteredAgents = agents.filter(a =>
-    a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (a.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (a.description || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

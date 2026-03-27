@@ -185,8 +185,11 @@ export default function PublicChat() {
                       type="file"
                       className="absolute inset-0 opacity-0 cursor-pointer"
                       onChange={(e) => {
-                        setFile(e.target.files[0]);
-                        setUploadStatus({ type: "", message: "" });
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          setFile(files[0]);
+                          setUploadStatus({ type: "", message: "" });
+                        }
                       }}
                       accept=".pdf"
                       disabled={isUploading}

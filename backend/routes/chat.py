@@ -7,6 +7,9 @@ from utils.file_store import get_agent
 from services.agent_builder import build_agent
 from services.agent_cache import agent_cache
 from services.session_manager import session_manager
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/agents", tags=["Chat"])
 
@@ -21,6 +24,7 @@ class ChatResponse(BaseModel):
 
 @router.post("/{id}/chat", response_model=ChatResponse)
 async def chat_with_agent(id: str, request: ChatRequest):
+    """Sends a message to a specific agent and returns the AI response, including RAG context if enabled."""
     agent_config = get_agent(id)
     if not agent_config:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -37,8 +41,7 @@ async def chat_with_agent(id: str, request: ChatRequest):
             agent_cache.set(id, agent_config.model_dump(), agent_bundle)
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Failed to build agent {id}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to build agent: {str(e)}")
         
     chain = agent_bundle["chain"]
@@ -86,6 +89,5 @@ async def chat_with_agent(id: str, request: ChatRequest):
             retrieved_chunks=retrieved_chunks
         )
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Chat error for agent {id}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to generate response: {str(e)}")

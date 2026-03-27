@@ -9,6 +9,9 @@ from services.vector_service import (
     delete_pinecone_index,
     upload_file_to_vector_db
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/vector-db", tags=["Vector Database"])
 
@@ -18,6 +21,7 @@ def get_indexes(
     api_key: Optional[str] = None,
     url: Optional[str] = None
 ):
+    """Lists available indexes or collections for a given vector database provider."""
     try:
         if vector_db.lower() == "pinecone":
             indexes = list_pinecone_indexes(api_key)
@@ -42,6 +46,7 @@ def create_index(
     dense_vector_name: str = Form("text-dense"),
     sparse_vector_name: str = Form("text-sparse")
 ):
+    """Creates a new index or collection in the specified vector database."""
     try:
         if vector_db.lower() == "pinecone":
             create_pinecone_index(name, dimension, api_key, metric)
@@ -58,6 +63,7 @@ def delete_index(
     api_key: Optional[str] = None,
     url: Optional[str] = None
 ):
+    """Deletes an index or collection from the specified vector database."""
     try:
         if vector_db.lower() == "pinecone":
             delete_pinecone_index(name, api_key)
@@ -91,6 +97,7 @@ async def upload_file(
     aws_region: Optional[str] = Form(None),
     agent_id: Optional[str] = Form(None)
 ):
+    """Uploads a PDF file, splits it into chunks, and indexes it into the chosen vector database."""
     # Save file temporarily
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         shutil.copyfileobj(file.file, tmp)
@@ -122,8 +129,7 @@ async def upload_file(
         )
         return {"message": "File uploaded and indexed successfully", "chunks": num_splits}
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Upload error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if os.path.exists(tmp_path):

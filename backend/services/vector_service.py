@@ -226,23 +226,31 @@ async def upload_file_to_vector_db(
         
         # Check for dedicated service account file first
         sa_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "config", f"service-account-{agent_id}.json")
+        tmp_creds_path = None
         
-        if os.path.exists(sa_file_path):
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = sa_file_path
-        elif gcp_service_account_json:
-            # Fallback to temp file if not yet archived but string exists
-            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-                f.write(gcp_service_account_json)
-                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = f.name
-        
-        vectorstore = VertexAIVectorSearch(
-            project_id=gcp_project_id or os.getenv("GCP_PROJECT_ID"),
-            location_id=gcp_location or os.getenv("GCP_LOCATION", "us-central1"),
-            index_id=index_name, # User calls it index name, but Vertex needs ID
-            embedding=embeddings,
-            staging_bucket=gcp_gcs_path or os.getenv("GCP_GCS_PATH")
-        )
-        vectorstore.add_documents(splits)
+        try:
+            if os.path.exists(sa_file_path):
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = sa_file_path
+            elif gcp_service_account_json:
+                # Fallback to temp file if not yet archived but string exists
+                with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+                    f.write(gcp_service_account_json)
+                    tmp_creds_path = f.name
+                    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = tmp_creds_path
+            
+            vectorstore = VertexAIVectorSearch(
+                project_id=gcp_project_id or os.getenv("GCP_PROJECT_ID"),
+                location_id=gcp_location or os.getenv("GCP_LOCATION", "us-central1"),
+                index_id=index_name, # User calls it index name, but Vertex needs ID
+                embedding=embeddings,
+                staging_bucket=gcp_gcs_path or os.getenv("GCP_GCS_PATH")
+            )
+            vectorstore.add_documents(splits)
+        finally:
+            if tmp_creds_path and os.path.exists(tmp_creds_path):
+                os.remove(tmp_creds_path)
+                if os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") == tmp_creds_path:
+                    os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
 
     else:
         raise ValueError(f"Unsupported vector database: {vector_db}")

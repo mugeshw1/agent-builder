@@ -4,11 +4,15 @@ from models.agent import AgentConfig
 from utils.file_store import save_agent, get_agent, list_agents, delete_agent, get_agent_by_slug
 from services.agent_cache import agent_cache
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/agents", tags=["Agents"])
 
 @router.get("/validate-slug/{slug}")
 def validate_slug(slug: str, exclude_id: Optional[str] = None):
+    """Checks if a slug is already in use by another agent."""
     agent = get_agent_by_slug(slug)
     if agent and (exclude_id is None or agent.id != exclude_id):
         return {"available": False}
@@ -16,6 +20,7 @@ def validate_slug(slug: str, exclude_id: Optional[str] = None):
 
 @router.post("/validate")
 async def validate_config(agent: AgentConfig):
+    """Validates the entire agent configuration, including checking LLM and VectorDB connectivity."""
     errors = {}
     
     # 1. LLM Validation
@@ -48,10 +53,11 @@ async def validate_config(agent: AgentConfig):
                 genai.configure(api_key=api_key)
                 genai.list_models()
         except Exception as e:
+            logger.error(f"LLM Validation Error for provider {provider}: {str(e)}")
             errors["llm.api_key"] = f"Invalid Key: {str(e)}"
     else:
         # Only error if it's required (e.g. not using a local provider if we had one)
-        errors["llm.api_key"] = f"Missing API Key for {agent.llm.provider} (not found in config or Env)"
+        errors["llm.api_key"] = f"Missing API Key for {agent.llm.provider}"
 
     # 2. RAG Validation
     if agent.rag.enabled:
@@ -111,14 +117,17 @@ async def validate_config(agent: AgentConfig):
 
 @router.post("/", response_model=AgentConfig)
 def create_agent(agent: AgentConfig):
+    """Creates a new agent configuration."""
     return save_agent(agent)
 
 @router.get("/", response_model=List[AgentConfig])
 def get_all_agents():
+    """Returns a list of all saved agents."""
     return list_agents()
 
 @router.get("/{id}", response_model=AgentConfig)
 def get_agent_by_id(id: str):
+    """Retrieves an agent by its ID or slug."""
     agent = get_agent(id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -126,12 +135,14 @@ def get_agent_by_id(id: str):
 
 @router.put("/{id}", response_model=AgentConfig)
 def update_agent(id: str, agent: AgentConfig):
+    """Updates an existing agent configuration."""
     if agent.id != id:
         raise HTTPException(status_code=400, detail="ID mismatch")
     return save_agent(agent)
 
 @router.post("/{id}/deploy", response_model=AgentConfig)
 def deploy_agent(id: str):
+    """Deploys an agent, making it visible to public requests."""
     agent = get_agent(id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -140,6 +151,7 @@ def deploy_agent(id: str):
 
 @router.post("/{id}/deactivate", response_model=AgentConfig)
 def deactivate_agent(id: str):
+    """Deactivates an agent configuration."""
     agent = get_agent(id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -148,6 +160,7 @@ def deactivate_agent(id: str):
 
 @router.delete("/{id}")
 def delete_agent_by_id(id: str):
+    """Deletes an agent and invalidates its cache."""
     agent_cache.invalidate(id)
     success = delete_agent(id)
     if not success:
