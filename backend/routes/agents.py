@@ -56,7 +56,6 @@ async def validate_config(agent: AgentConfig):
             logger.error(f"LLM Validation Error for provider {provider}: {str(e)}")
             errors["llm.api_key"] = f"Invalid Key: {str(e)}"
     else:
-        # Only error if it's required (e.g. not using a local provider if we had one)
         errors["llm.api_key"] = f"Missing API Key for {agent.llm.provider}"
 
     # 2. RAG Validation

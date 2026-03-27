@@ -43,6 +43,8 @@ class RAGConfig(BaseModel):
     search_type: str = "dense"
     dense_vector_name: str = "text-dense"
     sparse_vector_name: str = "text-sparse"
+    chunk_size: int = 1000
+    chunk_overlap: int = 200
     gcp_service_account_json: Optional[str] = None
     gcp_project_id: Optional[str] = None
     gcp_location: Optional[str] = None

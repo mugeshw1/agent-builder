@@ -37,6 +37,8 @@ export const useAgentStore = create((set) => ({
       search_type: "dense",
       dense_vector_name: "text-dense",
       sparse_vector_name: "text-sparse",
+      chunk_size: 1000,
+      chunk_overlap: 200,
     },
     output: {
       format: "Plain text",
@@ -86,6 +88,8 @@ export const useAgentStore = create((set) => ({
         search_type: "dense",
         dense_vector_name: "text-dense",
         sparse_vector_name: "text-sparse",
+        chunk_size: 1000,
+        chunk_overlap: 200,
       },
       output: {
         format: "Plain text",

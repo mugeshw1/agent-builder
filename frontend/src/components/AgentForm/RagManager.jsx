@@ -25,8 +25,6 @@ export default function RagManager({ isOpen, onClose, initialIndex = null, rag }
 
   // Step 2: Upload File
   const [file, setFile] = useState(null);
-  const [chunkSize, setChunkSize] = useState(1000);
-  const [overlap, setOverlap] = useState(200);
 
   // Reset state on open or change
   useEffect(() => {
@@ -92,8 +90,8 @@ export default function RagManager({ isOpen, onClose, initialIndex = null, rag }
     formData.append("vector_db", rag.vector_db);
     if (rag.api_key) formData.append("api_key", rag.api_key);
     if (rag.url) formData.append("url", rag.url);
-    formData.append("chunk_size", chunkSize);
-    formData.append("chunk_overlap", overlap);
+    formData.append("chunk_size", rag.chunk_size || 1000);
+    formData.append("chunk_overlap", rag.chunk_overlap || 200);
     
     // Add additional provider fields
     if (rag.gcp_service_account_json) formData.append("gcp_service_account_json", rag.gcp_service_account_json);
@@ -207,17 +205,6 @@ export default function RagManager({ isOpen, onClose, initialIndex = null, rag }
                 <p className="font-bold">{file ? file.name : "Click or drag PDF to upload"}</p>
                 <p className="text-sm text-muted-foreground">The file will be chunked and indexed into <b>{indexName}</b></p>
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-2">
-                 <Label>Chunk Size</Label>
-                 <Input type="number" value={chunkSize} onChange={(e) => setChunkSize(e.target.value)} />
-               </div>
-               <div className="space-y-2">
-                 <Label>Overlap</Label>
-                 <Input type="number" value={overlap} onChange={(e) => setOverlap(e.target.value)} />
-               </div>
             </div>
 
             <div className="flex justify-between pt-6 border-t mt-8">

@@ -30,7 +30,7 @@ export default function Step3_RAGConfig() {
       setLoadingIndexes(false);
       return;
     }
-    
+
     setLoadingIndexes(true);
     try {
       const resp = await axios.get(`${API_BASE_URL}/vector-db/indexes`, {
@@ -151,6 +151,27 @@ export default function Step3_RAGConfig() {
                 onValueChange={([val]) => handleChange("similarity_threshold", val)}
               />
               <p className="text-xs text-muted-foreground">Minimum confidence score to include a chunk.</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 pt-4 border-t">
+              <div className="space-y-4">
+                <Label>Chunk Size: {rag.chunk_size || 1000}</Label>
+                <Slider
+                  min={100} max={5000} step={100}
+                  value={[rag.chunk_size || 1000]}
+                  onValueChange={([val]) => handleChange("chunk_size", val)}
+                />
+                <p className="text-[10px] text-muted-foreground">Characters per chunk for new uploads.</p>
+              </div>
+              <div className="space-y-4">
+                <Label>Overlap: {rag.chunk_overlap || 200}</Label>
+                <Slider
+                  min={0} max={1000} step={50}
+                  value={[rag.chunk_overlap || 200]}
+                  onValueChange={([val]) => handleChange("chunk_overlap", val)}
+                />
+                <p className="text-[10px] text-muted-foreground">Context overlap between chunks.</p>
+              </div>
             </div>
           </div>
         </div>

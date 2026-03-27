@@ -64,8 +64,8 @@ export default function PublicChat() {
     if (agent.rag.url) {
       formData.append("url", agent.rag.url);
     }
-    formData.append("chunk_size", 1000);
-    formData.append("chunk_overlap", 200);
+    formData.append("chunk_size", agent.rag.chunk_size || 1000);
+    formData.append("chunk_overlap", agent.rag.chunk_overlap || 200);
 
     try {
       const resp = await axios.post(`${API_BASE_URL}/vector-db/upload`, formData);
